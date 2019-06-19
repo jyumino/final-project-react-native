@@ -1,19 +1,32 @@
 import React, { Component } from 'react';
-import { StyleSheet, Text, View, TextInput, Button, Alert, Picker } from 'react-native';
+import { StyleSheet, Text, View, TextInput, Button, Picker,ScrollView } from 'react-native';
+import ResultResi from './resultResi';
 import axios from 'axios';
 class CheckResiBox extends Component {
       state = {
         resi : "",
         kurir: "jne",
         notifResi: "",
-        result: ""
+        result: "",
+        status: "",
+        description: "",
+        posisi: "",
+        statusPengiriman: ""
       }
       _submitFunction = () => { 
+        this.setState({
+          notifResi: '',
+          result: ''
+        });
         if(this.state.resi.trim() === ""){
           this.setState({
             notifResi: "Nomor Resi Tidak Boleh Kosong"
           });
         }else{                
+            this.setState({
+              notifResi: "Tunggu Sebentar",
+              result: ''
+            });
             axios.post(
                 'https://geisa.online/api/testhit', 
                 {
@@ -22,8 +35,12 @@ class CheckResiBox extends Component {
                 }               
             ).then(res => {                 
                 this.setState({
-                    notifResi: "Tunggu Sebentar",
-                    result: JSON.stringify(res.data)
+                    notifResi: "",
+                    status  : res.data.rajaongkir.status.code,
+                    description: res.data.rajaongkir.status.description,
+                    posisi: res.data.rajaongkir.result.manifest,
+                    result: JSON.stringify(res.data),
+                    summaryPengiriman: res.data.rajaongkir.result.summary
                   });            
             }); 
             }  
@@ -44,9 +61,6 @@ class CheckResiBox extends Component {
             <Text style={styles.legendTitle}>
               Pilih Kurir Ekspedisi
             </Text>
-            <Text>
-                {this.state.result}
-            </Text>
             <Picker
               selectedValue={this.state.kurir}
               onValueChange={this._setKurir}
@@ -66,10 +80,10 @@ class CheckResiBox extends Component {
                 onChangeText={this._setResi}
                 value={this.state.resi}
               />
-              <Button 
+              {/* <Button 
                 title="Scan"
                 style={styles.buttonStyle}
-              />
+              /> */}
             </View>
             <Text style={styles.notif}>{this.state.notifResi}</Text>
             <View style={styles.buttonSubmit}>
@@ -79,7 +93,22 @@ class CheckResiBox extends Component {
                   onPress={this._submitFunction}
                 />            
             </View> 
+            <ScrollView vertical>
+                {
+                  this.state.result ? 
+                  <ResultResi
+                    result={this.state.result}
+                    description={this.state.description}
+                    status={this.state.status}
+                    posisi={this.state.posisi}
+                    summaryPengiriman={this.state.summaryPengiriman}
+                  />
+                  : 
+                  <Text></Text>
+                }
+            </ScrollView>
           </View>
+          
         );    
     }
 }
@@ -87,7 +116,8 @@ class CheckResiBox extends Component {
 const styles = StyleSheet.create({
     boxContent: {
         backgroundColor: '#FFF',
-        padding: 20
+        padding: 20,
+        flex:1
       },
       textWhite: {
         color:'#FFF',
@@ -107,7 +137,7 @@ const styles = StyleSheet.create({
         paddingLeft: 10,
         marginBottom: 10,
         alignItems: 'center',
-        width: '70%'
+        width: '100%'
       },
       buttonStyle: {
         padding: 10,

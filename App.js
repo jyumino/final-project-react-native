@@ -1,17 +1,30 @@
 import React, { Component } from 'react';
 import { StyleSheet, Text, View, TextInput, Button, Image, Picker } from 'react-native';
+import { NativeRouter, Route, Link } from "react-router-native";
 import CheckResiBox from './components/layouts/checkResiBox';
-export default class App extends Component {
+import OngkosKirim from './components/layouts/Ongkir';
+import TentangKami from './components/layouts/tentangKami';
+import NavMenu from './components/layouts/navMenu';
+export default class App extends Component { 
     render(){
+      const Resi = () => <CheckResiBox />;
+
+      const Ongkir = () => <OngkosKirim />;
+            
       return (
+        
+        <NativeRouter>
         <View style={styles.container}>
           <View style={styles.topNav}>
             <Image source={require('./assets/images/icon.png')} style={styles.logoStyle} />
           </View>
-          
-          <CheckResiBox 
+          <NavMenu 
           />
+          <Route exact path="/" component={Resi} />
+          <Route exact path="/ongkir" component={Ongkir} />
+          <Route exact path="/tentangkami" component={TentangKami} />
         </View>
+      </NativeRouter>        
       );      
     }
 
@@ -39,8 +52,7 @@ const styles = StyleSheet.create({
   topNav: {
     backgroundColor: '#FFF',
     height: 60,
-    padding: 10,
-    marginBottom: 20
+    padding: 10
   },
 
 });
